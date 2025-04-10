@@ -1,0 +1,30 @@
+# Vivado project artifacts
+*.xpr
+*.runs/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.gen/
+*.srcs/
+
+# Vivado logs and journals
+*.jou
+*.log
+*.str
+
+# Build outputs
+*.bit
+*.bin
+*.mcs
+*.ltx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/
+
+# Backup files
+*~
+*.bak
