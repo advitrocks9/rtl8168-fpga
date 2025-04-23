@@ -117,6 +117,16 @@ set files [list \
  [file normalize "${origin_dir}/src/pcileech_tlps128_bar_controller.sv"]\
  [file normalize "${origin_dir}/src/pcileech_tlps128_cfgspace_shadow.sv"]\
  [file normalize "${origin_dir}/src/pcileech_enigma_x1_top.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_lfsr.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_timer_emu.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_phyar_emu.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_cfg9346_emu.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_chipcmd_emu.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_intr_emu.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_eriar_emu.sv"]\
+ [file normalize "${origin_dir}/src/rtl8168_gphy_ocp_emu.sv"]\
+ [file normalize "${origin_dir}/src/pcileech_bar_impl_rtl8168.sv"]\
+ [file normalize "${origin_dir}/src/pcileech_bar_impl_msix.sv"]\
 ]
 set imported_files [import_files -fileset sources_1 $files]
 
@@ -168,6 +178,46 @@ set file "src/pcileech_enigma_x1_top.sv"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
+set file "src/rtl8168_lfsr.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/rtl8168_timer_emu.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/rtl8168_phyar_emu.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/rtl8168_cfg9346_emu.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/rtl8168_chipcmd_emu.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/rtl8168_intr_emu.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/rtl8168_eriar_emu.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/rtl8168_gphy_ocp_emu.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/pcileech_bar_impl_rtl8168.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "src/pcileech_bar_impl_msix.sv"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
@@ -182,6 +232,9 @@ set files [list \
  [file normalize "${origin_dir}/ip/pcileech_bar_zero4k.coe" ]\
  [file normalize "${origin_dir}/ip/pcileech_cfgspace.coe" ]\
  [file normalize "${origin_dir}/ip/pcileech_cfgspace_writemask.coe" ]\
+ [file normalize "${origin_dir}/ip/pcileech_cfgspace_rw1c.coe" ]\
+ [file normalize "${origin_dir}/ip/pcileech_bar_rtl8168.coe" ]\
+ [file normalize "${origin_dir}/ip/pcileech_bar_writemask.coe" ]\
  [file normalize "${origin_dir}/ip/bram_pcie_cfgspace.xci" ]\
 ]
 set imported_files [import_files -fileset sources_1 $files]
@@ -556,6 +609,130 @@ set_property -name "registered_with_manager" -value "1" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
   set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
 }
+
+
+# Reconfigure pcie_7x_0 for RTL8168H identity
+set_property -dict [list \
+    CONFIG.Vendor_ID                {10EC} \
+    CONFIG.Device_ID                {8168} \
+    CONFIG.Revision_ID              {15} \
+    CONFIG.Subsystem_Vendor_ID      {1458} \
+    CONFIG.Subsystem_ID             {E000} \
+    CONFIG.Class_Code               {020000} \
+    CONFIG.Base_Class_Menu          {Network_controller} \
+    CONFIG.Sub_Class_Interface_Menu {Ethernet_controller} \
+    CONFIG.Bar0_Enabled             {true} \
+    CONFIG.Bar0_Type                {IO} \
+    CONFIG.Bar0_Scale               {Bytes} \
+    CONFIG.Bar0_Size                {256} \
+    CONFIG.Bar1_Enabled             {false} \
+    CONFIG.Bar2_Enabled             {true} \
+    CONFIG.Bar2_Type                {Memory} \
+    CONFIG.Bar2_64bit               {true} \
+    CONFIG.Bar2_Scale               {Kilobytes} \
+    CONFIG.Bar2_Size                {4} \
+    CONFIG.Bar4_Enabled             {true} \
+    CONFIG.Bar4_Type                {Memory} \
+    CONFIG.Bar4_64bit               {true} \
+    CONFIG.Bar4_Scale               {Kilobytes} \
+    CONFIG.Bar4_Size                {16} \
+    CONFIG.MSI_Enabled              {true} \
+    CONFIG.MSI_64b                  {true} \
+    CONFIG.MSIx_Enabled             {true} \
+    CONFIG.MSIx_Table_Size          {4} \
+    CONFIG.MSIx_Table_BIR           {BAR_4} \
+    CONFIG.MSIx_Table_Offset        {00000000} \
+    CONFIG.MSIx_PBA_BIR             {BAR_4} \
+    CONFIG.MSIx_PBA_Offset          {00000800} \
+    CONFIG.DSN_Enabled              {true} \
+    CONFIG.DSN_Value                {00000001_01000A35} \
+    CONFIG.AER_Enabled              {true} \
+    CONFIG.Maximum_Link_Width       {X1} \
+    CONFIG.Link_Speed               {5.0_GT/s} \
+    CONFIG.IntX_Generation          {true} \
+    CONFIG.Interrupt_Pin            {INTA} \
+    CONFIG.CardBus_CIS_Pointer      {00000000} \
+    CONFIG.Expansion_ROM            {disabled} \
+    CONFIG.Device_Specific_Initialization {false} \
+    CONFIG.D1_Support               {true} \
+    CONFIG.D2_Support               {true} \
+    CONFIG.PME_D0                   {true} \
+    CONFIG.PME_D1                   {true} \
+    CONFIG.PME_D2                   {false} \
+    CONFIG.PME_D3hot                {false} \
+    CONFIG.PME_D3cold               {false} \
+] [get_ips pcie_7x_0]
+
+
+# bram_bar_rtl8168: True Dual Port BRAM, 1024x32, byte-write on port A
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name bram_bar_rtl8168
+set_property -dict [list \
+    CONFIG.Memory_Type              {True_Dual_Port_RAM} \
+    CONFIG.Write_Width_A            {32} \
+    CONFIG.Write_Depth_A            {1024} \
+    CONFIG.Read_Width_A             {32} \
+    CONFIG.Write_Width_B            {32} \
+    CONFIG.Read_Width_B             {32} \
+    CONFIG.Enable_A                 {Use_ENA_Pin} \
+    CONFIG.Enable_B                 {Use_ENB_Pin} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+    CONFIG.Register_PortB_Output_of_Memory_Primitives {false} \
+    CONFIG.Use_Byte_Write_Enable    {true} \
+    CONFIG.Byte_Size                {8} \
+    CONFIG.Load_Init_File           {true} \
+    CONFIG.Coe_File                 {../../ip/pcileech_bar_rtl8168.coe} \
+    CONFIG.Fill_Remaining_Memory_Locations {true} \
+    CONFIG.Remaining_Memory_Locations {00000000} \
+] [get_ips bram_bar_rtl8168]
+
+# drom_bar_writemask: Single Port ROM, 1024x32
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name drom_bar_writemask
+set_property -dict [list \
+    CONFIG.Memory_Type              {Single_Port_ROM} \
+    CONFIG.Write_Width_A            {32} \
+    CONFIG.Write_Depth_A            {1024} \
+    CONFIG.Read_Width_A             {32} \
+    CONFIG.Enable_A                 {Use_ENA_Pin} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+    CONFIG.Load_Init_File           {true} \
+    CONFIG.Coe_File                 {../../ip/pcileech_bar_writemask.coe} \
+    CONFIG.Fill_Remaining_Memory_Locations {true} \
+    CONFIG.Remaining_Memory_Locations {00000000} \
+] [get_ips drom_bar_writemask]
+
+# bram_bar4_msix: True Dual Port BRAM, 4096x32, zero-initialized
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name bram_bar4_msix
+set_property -dict [list \
+    CONFIG.Memory_Type              {True_Dual_Port_RAM} \
+    CONFIG.Write_Width_A            {32} \
+    CONFIG.Write_Depth_A            {4096} \
+    CONFIG.Read_Width_A             {32} \
+    CONFIG.Write_Width_B            {32} \
+    CONFIG.Read_Width_B             {32} \
+    CONFIG.Enable_A                 {Use_ENA_Pin} \
+    CONFIG.Enable_B                 {Use_ENB_Pin} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+    CONFIG.Register_PortB_Output_of_Memory_Primitives {false} \
+    CONFIG.Use_Byte_Write_Enable    {true} \
+    CONFIG.Byte_Size                {8} \
+    CONFIG.Fill_Remaining_Memory_Locations {true} \
+    CONFIG.Remaining_Memory_Locations {00000000} \
+] [get_ips bram_bar4_msix]
+
+# drom_cfgspace_rw1c: Single Port ROM, 1024x32
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name drom_cfgspace_rw1c
+set_property -dict [list \
+    CONFIG.Memory_Type              {Single_Port_ROM} \
+    CONFIG.Write_Width_A            {32} \
+    CONFIG.Write_Depth_A            {1024} \
+    CONFIG.Read_Width_A             {32} \
+    CONFIG.Enable_A                 {Use_ENA_Pin} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+    CONFIG.Load_Init_File           {true} \
+    CONFIG.Coe_File                 {../../ip/pcileech_cfgspace_rw1c.coe} \
+    CONFIG.Fill_Remaining_Memory_Locations {true} \
+    CONFIG.Remaining_Memory_Locations {00000000} \
+] [get_ips drom_cfgspace_rw1c]
 
 
 # Create 'constrs_1' fileset (if not found)
