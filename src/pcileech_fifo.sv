@@ -213,7 +213,7 @@ module pcileech_fifo #(
     reg     [239:0]     rw;
     
     // special non-user accessible registers 
-    reg     [79:0]      _pcie_core_config = { 4'hf, 1'b1, 1'b1, 1'b0, 1'b0, 8'h02, 16'h0666, 16'h10EE, 16'h0007, 16'h10EE };
+    reg     [79:0]      _pcie_core_config = { 4'hf, 1'b1, 1'b1, 1'b0, 1'b0, 8'h15, 16'h8168, 16'h10EC, 16'hE000, 16'h1458 };
     time                _cmd_timer_inactivity_base;
     reg                 rwi_drp_rd_en;
     reg                 rwi_drp_wr_en;
@@ -279,15 +279,15 @@ module pcileech_fifo #(
             rw[127:96]  <= 0;                           // +00C: cmd_send_count [little-endian]
             // PCIE INITIAL CONFIG (SPECIAL BITSTREAM)
             // NB! "initial" CLK0 values may also be changed in: '_pcie_core_config = {...};' [important on PCIeScreamer].
-            rw[143:128] <= 16'h10EE;                    // +010: CFG_SUBSYS_VEND_ID (NOT IMPLEMENTED)
-            rw[159:144] <= 16'h0007;                    // +012: CFG_SUBSYS_ID      (NOT IMPLEMENTED)
-            rw[175:160] <= 16'h10EE;                    // +014: CFG_VEND_ID        (NOT IMPLEMENTED)
-            rw[191:176] <= 16'h0666;                    // +016: CFG_DEV_ID         (NOT IMPLEMENTED)
-            rw[199:192] <= 8'h02;                       // +018: CFG_REV_ID         (NOT IMPLEMENTED)
+            rw[143:128] <= 16'h1458;                    // +010: CFG_SUBSYS_VEND_ID (Gigabyte)
+            rw[159:144] <= 16'hE000;                    // +012: CFG_SUBSYS_ID
+            rw[175:160] <= 16'h10EC;                    // +014: CFG_VEND_ID (Realtek)
+            rw[191:176] <= 16'h8168;                    // +016: CFG_DEV_ID (RTL8168)
+            rw[199:192] <= 8'h15;                       // +018: CFG_REV_ID
             rw[200]     <= 1'b1;                        // +019: PCIE CORE RESET
             rw[201]     <= 1'b0;                        //       PCIE SUBSYSTEM RESET
             rw[202]     <= 1'b1;                        //       CFGTLP PROCESSING ENABLE
-            rw[203]     <= 1'b1;                        //       CFGTLP ZERO DATA
+            rw[203]     <= 1'b0;                        //       CFGTLP ZERO DATA (0 = enable custom config space)
             rw[204]     <= 1'b1;                        //       CFGTLP FILTER TLP FROM USER
             rw[205]     <= 1'b1;                        //       PCIE BAR PIO ON-BOARD PROCESSING ENABLE
             rw[206]     <= 1'b0;                        //       CFGTLP PCIE WRITE ENABLE
