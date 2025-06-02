@@ -17,7 +17,8 @@ module pcileech_pcie_cfg_a7(
     IfPCIeFifoCfg.mp_pcie   dfifo,
     IfPCIeSignals.mpm       ctx,
     IfAXIS128.source        tlps_static,
-    output [15:0]           pcie_id
+    output [15:0]           pcie_id,
+    input                   msi_request
     );
 
     // ----------------------------------------------------
@@ -27,7 +28,11 @@ module pcileech_pcie_cfg_a7(
     time tickcount64 = 0;
     always @ ( posedge clk_pcie )
         tickcount64 <= tickcount64 + 1;
-    
+
+    // MSI edge detection
+    bit msi_request_d1 = 0;
+    wire msi_request_rising = msi_request && !msi_request_d1;
+
     // ----------------------------------------------------------------------------
     // Convert received CFG data from FT601 to PCIe clock domain
     // FIFO depth: 512 / 64-bits
@@ -212,7 +217,7 @@ module pcileech_pcie_cfg_a7(
             // SIZEOF / BYTECOUNT [little-endian]
             rw[63:32]   <= $bits(rw) >> 3;          // +004: bytecount [little endian]
             // DSN
-            rw[127:64]  <= 64'h0000000101000A35;    // +008: cfg_dsn
+            rw[127:64]  <= 64'h010068FEFF4CE000;    // +008: cfg_dsn
             // PCIe CFG MGMT
             rw[159:128] <= 0;                       // +010: cfg_mgmt_di
             rw[169:160] <= 0;                       // +014: cfg_mgmt_dwaddr
@@ -341,6 +346,11 @@ module pcileech_pcie_cfg_a7(
             pcileech_pcie_cfg_a7_initialvalues();
         else
             begin
+                // MSI request edge detection and interrupt pulse
+                msi_request_d1 <= msi_request;
+                if ( msi_request_rising && !rst )
+                    rw[206] <= 1'b1;  // pulse cfg_interrupt
+
                 // READ config
                 out_wren <= in_cmd_read;
                 if ( in_cmd_read )
