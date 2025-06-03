@@ -342,14 +342,18 @@ module pcileech_pcie_cfg_a7(
     initial pcileech_pcie_cfg_a7_initialvalues();
     
     always @ ( posedge clk_pcie )
-        if ( rst )
+        if ( rst ) begin
             pcileech_pcie_cfg_a7_initialvalues();
+            msi_request_d1 <= 1'b0;
+        end
         else
             begin
                 // MSI request edge detection and interrupt pulse
                 msi_request_d1 <= msi_request;
-                if ( msi_request_rising && !rst )
-                    rw[206] <= 1'b1;  // pulse cfg_interrupt
+                if ( msi_request_rising )
+                    rw[206] <= 1'b1;  // assert cfg_interrupt
+                else if ( ctx.cfg_interrupt_rdy )
+                    rw[206] <= 1'b0;  // clear after core acknowledges
 
                 // READ config
                 out_wren <= in_cmd_read;
