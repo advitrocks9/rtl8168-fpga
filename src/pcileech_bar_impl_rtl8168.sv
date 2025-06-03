@@ -271,8 +271,8 @@ module pcileech_bar_impl_rtl8168(
     wire wr_is_cfg_protected = (wr_dw_addr == 10'h000) || (wr_dw_addr == 10'h001) ||
                                (wr_dw_addr == 10'h014) || (wr_dw_addr == 10'h015);
 
-    // BRAM write: not state-machine-controlled, and either not protected or unlocked
-    wire wr_to_bram = wr_valid && !wr_is_sm && (!wr_is_cfg_protected || config_unlock);
+    // BRAM write: not state-machine-controlled, not protected (or unlocked), and no pending write
+    wire wr_to_bram = wr_valid && !wr_is_sm && (!wr_is_cfg_protected || config_unlock) && !wr_pending;
 
     // --- State machine write strobes ---
     assign phyar_wr     = wr_is_phyar;
