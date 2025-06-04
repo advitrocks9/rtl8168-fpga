@@ -1,105 +1,105 @@
 memory_initialization_radix=16;
 memory_initialization_vector=
-816810EC,   ; DW 0x000: VID=10EC, DID=8168
-00100000,   ; DW 0x001: Cmd=0000(reset), Sta=0010(CapList)
-02000015,   ; DW 0x002: Class=020000, RevID=15
-00000008,   ; DW 0x003: CLS=08, LatTimer=00, HdrType=00, BIST=00
-0000E001,   ; DW 0x004: BAR0: I/O 256B
-00000000,   ; DW 0x005: BAR1: disabled
-0000F004,   ; DW 0x006: BAR2: Mem64 4KB
-00000000,   ; DW 0x007: BAR3: upper 32 of BAR2
-0000C004,   ; DW 0x008: BAR4: Mem64 16KB
-00000000,   ; DW 0x009: BAR5: upper 32 of BAR4
-00000000,   ; DW 0x00A: CardBus CIS
-E0001458,   ; DW 0x00B: SVID=1458(Gigabyte), SSID=E000
-00000000,   ; DW 0x00C: Expansion ROM (disabled)
-00000040,   ; DW 0x00D: CapPtr=0x40
-00000000,   ; DW 0x00E: Reserved
-01010000,   ; DW 0x00F: IntLine=00, IntPin=01(INTA#), MinGnt=00, MaxLat=01
-C8035001,   ; DW 0x010: PM CapID=01, Next=50, PMC=03C8
-00000000,   ; DW 0x011: PM PMCSR=0000(D0 state)
-00000000,   ; DW 0x012: PM Data/BSE
-00000000,   ; DW 0x013: PM padding
-00807005,   ; DW 0x014: MSI CapID=05, Next=70, MsgCtrl=0080(64bit,1vec)
-00000000,   ; DW 0x015: MSI Msg Address Low
-00000000,   ; DW 0x016: MSI Msg Address High
-00000000,   ; DW 0x017: MSI Msg Data
-00000000,   ; DW 0x018: padding
-00000000,   ; DW 0x019: padding
-00000000,   ; DW 0x01A: padding
-00000000,   ; DW 0x01B: padding
-0002B010,   ; DW 0x01C: PCIe CapID=10, Next=B0, PcieCap=0002(v2,Endpoint)
-00008001,   ; DW 0x01D: PCIe DevCap: MPS=256B, RBEE=1
-00002810,   ; DW 0x01E: PCIe DevCtl=2810, DevSta=0000
-00015C82,   ; DW 0x01F: PCIe LnkCap: Gen2x1, ASPM L0s+L1, ClkPM
-10110040,   ; DW 0x020: PCIe LnkCtl=0040, LnkSta=1011(Gen1x1,SlotClk)
-00000000,   ; DW 0x021: PCIe Slot (N/A)
-00000000,   ; DW 0x022: PCIe Slot (N/A)
-00000000,   ; DW 0x023: PCIe Root (N/A)
-00000000,   ; DW 0x024: PCIe Root (N/A)
-00000000,   ; DW 0x025: padding
-00000000,   ; DW 0x026: padding
-00000810,   ; DW 0x027: PCIe DevCap2: CplTimeoutDis+LTR
-00000000,   ; DW 0x028: PCIe DevCtl2=0000
-00000000,   ; DW 0x029: PCIe LnkCap2
-00000000,   ; DW 0x02A: PCIe LnkCtl2/LnkSta2
-00000000,   ; DW 0x02B: padding
-0003D011,   ; DW 0x02C: MSIX CapID=11, Next=D0, MsgCtrl=0003(4vecs)
-00000004,   ; DW 0x02D: MSIX Table: BIR=4(BAR4), Offset=0x000
-00000804,   ; DW 0x02E: MSIX PBA: BIR=4(BAR4), Offset=0x800
-00000000,   ; DW 0x02F: padding
-00000003,   ; DW 0x030: padding (between caps)
-00000000,   ; DW 0x031: padding
-00000000,   ; DW 0x032: padding
-00000000,   ; DW 0x033: padding
-00000003,   ; DW 0x034: VPD CapID=03, Next=00(end), VPD_Addr=0000
-00000000,   ; DW 0x035: VPD Data
-00000000,   ; DW 0x036: padding
-00000000,   ; DW 0x037: padding
-00000000,   ; DW 0x038: padding
-00000000,   ; DW 0x039: padding
-00000000,   ; DW 0x03A: padding
-00000000,   ; DW 0x03B: padding
-00000000,   ; DW 0x03C: padding
-00000000,   ; DW 0x03D: padding
-00000000,   ; DW 0x03E: padding
-00000000,   ; DW 0x03F: padding
-14010001,   ; DW 0x040: AER ExtCapID=0001, Ver=1, Next=0x140
-00000000,   ; DW 0x041: AER Uncorrectable Error Status (W1C)
-00100000,   ; DW 0x042: AER Uncorrectable Error Mask (UR masked)
-00062011,   ; DW 0x043: AER Uncorrectable Error Severity
-00000000,   ; DW 0x044: AER Correctable Error Status (W1C)
-00002000,   ; DW 0x045: AER Correctable Error Mask
-00000060,   ; DW 0x046: AER Capabilities & Control
-00000000,   ; DW 0x047: AER Header Log DW0
-00000000,   ; DW 0x048: AER Header Log DW1
-00000000,   ; DW 0x049: AER Header Log DW2
-00000000,   ; DW 0x04A: AER Header Log DW3
-00000000,   ; DW 0x04B: AER Root Error Cmd (N/A)
-00000000,   ; DW 0x04C: AER Root Error Status (N/A)
-00000000,   ; DW 0x04D: AER Error Source ID (N/A)
-00000000,   ; DW 0x04E: AER TLP Prefix Log
-00000000,   ; DW 0x04F: AER padding
-16020002,   ; DW 0x050: VC ExtCapID=0002, Ver=1, Next=0x160
-00000000,   ; DW 0x051: VC Port Cap 1
-00000000,   ; DW 0x052: VC Port Cap 2
-00000000,   ; DW 0x053: VC Port Ctrl/Status
-800000FF,   ; DW 0x054: VC0 Resource Cap: all TCs mapped
-00000000,   ; DW 0x055: VC0 Resource Ctrl
-00000000,   ; DW 0x056: VC0 Resource Status
-00000000,   ; DW 0x057: VC padding
-17030003,   ; DW 0x058: DSN ExtCapID=0003, Ver=1, Next=0x170
-E0000001,   ; DW 0x059: DSN Low 32 (placeholder)
-00004CFE,   ; DW 0x05A: DSN High 32 (placeholder)
-00000000,   ; DW 0x05B: DSN padding
-17800018,   ; DW 0x05C: LTR ExtCapID=0018, Ver=1, Next=0x178
-00000000,   ; DW 0x05D: LTR Max Snoop/No-Snoop Latency
-0000001E,   ; DW 0x05E: L1SS ExtCapID=001E, Ver=1, Next=0x000(END)
-0000001F,   ; DW 0x05F: L1SS Capabilities
-00000000,   ; DW 0x060: L1SS Control 1
-00000000,   ; DW 0x061: L1SS Control 2
-00000000,   ; DW 0x062: padding
-00000000,   ; DW 0x063: padding
+00000000,   ; DW 0x000: MAC0 - protected by Cfg9346
+00000000,   ; DW 0x001: MAC4 - protected by Cfg9346
+FFFFFFFF,   ; DW 0x002: MAR0 - fully writable
+FFFFFFFF,   ; DW 0x003: MAR4 - fully writable
+FFFFFFFF,   ; DW 0x004: CounterAddrLow
+FFFFFFFF,   ; DW 0x005: CounterAddrHigh
+FFFFFFFF,   ; DW 0x006: CustomLED/LED_FREQ/EEE_LED
+00000000,   ; DW 0x007: reserved
+FFFFFFFF,   ; DW 0x008: TxDescStartAddrLow
+FFFFFFFF,   ; DW 0x009: TxDescStartAddrHigh
+FFFFFFFF,   ; DW 0x00A: TxHDescStartAddrLow
+FFFFFFFF,   ; DW 0x00B: TxHDescStartAddrHigh
+FFFFFFFF,   ; DW 0x00C: FLASH
+9C000000,   ; DW 0x00D: rsvd/rsvd/ERSR(RO)/ChipCmd mask=0x9C - state machine
+00000000,   ; DW 0x00E: TxPoll=write-only (always reads 0xFF) - state machine
+00000000,   ; DW 0x00F: IntrMask/IntrStatus - state machine handles both
+03000780,   ; DW 0x010: TxConfig: IFG(25:24), TxDMA(10:8), AUTO_FIFO(7) writable
+FFFFFFFF,   ; DW 0x011: RxConfig - fully writable
+00000000,   ; DW 0x012: TCTR - RO (free-running counter)
+00000000,   ; DW 0x013: RxMissed - RO
+000000FF,   ; DW 0x014: Cfg9346 byte writable / Config0-2 protected by Cfg9346
+FF000000,   ; DW 0x015: Config3-5 protected / TDFNR writable
+FFFFFFFF,   ; DW 0x016: TimeInt0
+FFFFFFFF,   ; DW 0x017: TimeInt1
+00000000,   ; DW 0x018: PHYAR - state machine handles
+FFFFFFFF,   ; DW 0x019: CSIDR
+FFFFFFFF,   ; DW 0x01A: CSIAR
+FF00FF00,   ; DW 0x01B: PHYstatus(RO)/MACDBG(RO)/GPIO(RW)/PMCH(RW)
+00000000,   ; DW 0x01C: ERIDR - state machine handles
+00000000,   ; DW 0x01D: ERIAR - state machine handles
+00000000,   ; DW 0x01E: reserved
+00000000,   ; DW 0x01F: EPHY_RXER_NUM - RO
+FFFFFFFF,   ; DW 0x020: EPHYAR
+00000000,   ; DW 0x021: reserved
+00000000,   ; DW 0x022: reserved
+FFFFFFFF,   ; DW 0x023: TimeInt2
+00000000,   ; DW 0x024: reserved
+00000000,   ; DW 0x025: reserved
+00000000,   ; DW 0x026: reserved
+00000000,   ; DW 0x027: reserved
+00000000,   ; DW 0x028: reserved
+00000000,   ; DW 0x029: reserved
+00000000,   ; DW 0x02A: reserved
+00000000,   ; DW 0x02B: reserved
+FFFFFFFF,   ; DW 0x02C: OCPDR
+FFFFFFFF,   ; DW 0x02D: OCPAR
+00000000,   ; DW 0x02E: GPHY_OCP - state machine handles
+00000000,   ; DW 0x02F: reserved
+00000000,   ; DW 0x030: reserved
+00000000,   ; DW 0x031: reserved
+00000000,   ; DW 0x032: reserved
+00000000,   ; DW 0x033: reserved
+FFFFFFFF,   ; DW 0x034: DLLPR/DBG_REG/TWSI/MCU
+00000000,   ; DW 0x035: reserved
+FFFF0000,   ; DW 0x036: rsvd(RO)/rsvd(RO)/RxMaxSize(RW)
+FFFFFFFF,   ; DW 0x037: EFUSEAR
+FFFF2063,   ; DW 0x038: CPlusCmd mask=0x2063/IntrMitigate fully writable
+FFFFFFFF,   ; DW 0x039: RxDescAddrLow
+FFFFFFFF,   ; DW 0x03A: RxDescAddrHigh
+000000FF,   ; DW 0x03B: MTPS writable (byte 0)
+FFFFFFFF,   ; DW 0x03C: MISC
+FFFFFFFF,   ; DW 0x03D: TimeInt3
+FFFFFFFF,   ; DW 0x03E: reserved/debug
+FFFFFFFF,   ; DW 0x03F: reserved/debug
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
+00000000,
 00000000,
 00000000,
 00000000,
