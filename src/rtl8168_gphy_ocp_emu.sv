@@ -40,17 +40,17 @@ module rtl8168_gphy_ocp_emu(
     bit [4:0]   pending_reg = 0;
     bit [14:0]  pending_ocp_addr = 0;
 
-    // Jitter: same as PHYAR — 1200 + (lfsr[6:0] capped at 100)
+    // Jitter: same as PHYAR — 1200 + (lfsr[6:0] mod 101)
     wire [6:0] jitter_raw = lfsr_val[6:0];
-    wire [10:0] delay_target = 11'd1200 + ((jitter_raw > 7'd100) ? 11'd100 : {4'd0, jitter_raw});
+    wire [6:0] jitter_mod = (jitter_raw >= 7'd101) ? (jitter_raw - 7'd101) : jitter_raw;
+    wire [10:0] delay_target = 11'd1200 + {4'd0, jitter_mod};
 
     // OCP address to PHY register mapping:
-    // Driver uses OCP_STD_PHY_BASE=0xA400 + reg*2, shifted left 16 -> bits[30:16] = 0x2400 + reg*2
-    // PHY_reg = (wr_data[30:16] - 15'h2400) >> 1
-    // Simplified: the reg index is (wr_data[21:17] - 5'h12) since 0x2400>>1 = 0x1200, bits[21:17] = addr[5:1]+base
-    // Even simpler: offset = wr_data[30:16] - 15'h2400, phy_reg = offset[5:1]
-    wire [14:0] ocp_addr_in   = wr_data[30:16];
-    wire [14:0] ocp_offset    = ocp_addr_in - 15'h2400;
+    // Driver writes GPHY_OCP = OCPAR_FLAG | (reg << 15) | data, where reg = 0xA400 + phy_reg*2.
+    // bits[30:15] = reg (16-bit OCP address); reg is always even so bit 15 = 0, no overlap with data.
+    // PHY_reg = (wr_data[30:15] - 16'hA400) >> 1
+    wire [15:0] ocp_addr_in   = wr_data[30:15];
+    wire [15:0] ocp_offset    = ocp_addr_in - 16'hA400;
     wire [4:0]  mapped_reg_in = ocp_offset[5:1];
 
     always @ ( posedge clk ) begin
