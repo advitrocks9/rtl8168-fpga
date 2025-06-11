@@ -40,7 +40,7 @@ module rtl8168_gphy_ocp_emu(
     bit [4:0]   pending_reg = 0;
     bit [14:0]  pending_ocp_addr = 0;
 
-    // Jitter: same as PHYAR — 1200 + (lfsr[6:0] mod 101)
+    // Jitter: 1200 + (lfsr[6:0] mod 101), same wrap approximation as PHYAR
     wire [6:0] jitter_raw = lfsr_val[6:0];
     wire [6:0] jitter_mod = (jitter_raw >= 7'd101) ? (jitter_raw - 7'd101) : jitter_raw;
     wire [10:0] delay_target = 11'd1200 + {4'd0, jitter_mod};

@@ -46,8 +46,12 @@ module rtl8168_phyar_emu(
     // Since modulo is expensive in hardware, approximate with: 1200 + lfsr_val[6:0]
     // lfsr_val[6:0] range is 0-127, but we cap at 100 for 1200-1300 range
     // TODO: test with actual r8169 driver on 6.x kernel
+    // Jitter: 1200 + (lfsr_val[6:0] mod 101), approximated by wrapping
+    // values >= 101 back to jitter_raw - 101 (gives 0-26 double coverage,
+    // much better than the previous clamp that piled up 100-127 at 100).
     wire [6:0] jitter_raw = lfsr_val[6:0];
-    wire [10:0] delay_target = 11'd1200 + ((jitter_raw > 7'd100) ? 11'd100 : {4'd0, jitter_raw});
+    wire [6:0] jitter_mod = (jitter_raw >= 7'd101) ? (jitter_raw - 7'd101) : jitter_raw;
+    wire [10:0] delay_target = 11'd1200 + {4'd0, jitter_mod};
 
     // OCP read port: combinational lookup
     always @ ( posedge clk ) begin
