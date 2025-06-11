@@ -269,8 +269,9 @@ module pcileech_bar_impl_rtl8168(
     wire wr_is_cfg_protected = (wr_dw_addr == 10'h000) || (wr_dw_addr == 10'h001) ||
                                (wr_dw_addr == 10'h014) || (wr_dw_addr == 10'h015);
 
-    // BRAM write: not state-machine-controlled, not protected (or unlocked), and no pending write
-    wire wr_to_bram = wr_valid && !wr_is_sm && (!wr_is_cfg_protected || config_unlock) && !wr_pending;
+    // A write is a regular BRAM candidate if not state-machine-controlled and
+    // not config-protected (or unlocked)
+    wire wr_is_regular = wr_valid && !wr_is_sm && (!wr_is_cfg_protected || config_unlock);
 
     // --- State machine write strobes ---
     assign phyar_wr     = wr_is_phyar;
@@ -283,17 +284,27 @@ module pcileech_bar_impl_rtl8168(
     assign gphy_ocp_wr  = wr_is_gphy_ocp;
 
     // --- BRAM read-modify-write pipeline ---
-    // Cycle 0: Issue reads to BRAM port A and writemask ROM (done via ena above)
+    // Cycle 0: Issue reads to BRAM port A and writemask ROM
     // Cycle 1: Compute masked data, write to BRAM port A
+    // 1-deep skid buffer catches a second write arriving while pending
 
     bit         wr_pending = 0;
     bit [9:0]   wr_pending_addr;
     bit [3:0]   wr_pending_be;
     bit [31:0]  wr_pending_data;
 
+    bit         wr_buf_valid = 0;
+    bit [9:0]   wr_buf_addr;
+    bit [3:0]   wr_buf_be;
+    bit [31:0]  wr_buf_data;
+
+    // Start a new RMW cycle from the bus or from the skid buffer
+    wire wr_start = wr_is_regular && !wr_pending;
+
     always @ ( posedge clk ) begin
         if ( rst ) begin
             wr_pending <= 1'b0;
+            wr_buf_valid <= 1'b0;
             bram_wea <= 4'h0;
             bram_ena <= 1'b0;
         end
@@ -302,17 +313,33 @@ module pcileech_bar_impl_rtl8168(
             bram_wea <= 4'h0;
             bram_ena <= 1'b0;
 
-            // Cycle 0: Capture pending write and issue reads
-            if ( wr_to_bram ) begin
+            // Skid buffer: catch a write that arrives while RMW is pending
+            if ( wr_is_regular && wr_pending && !wr_buf_valid ) begin
+                wr_buf_valid <= 1'b1;
+                wr_buf_addr  <= wr_dw_addr;
+                wr_buf_be    <= wr_be;
+                wr_buf_data  <= wr_data;
+            end
+
+            // Cycle 0: Start RMW — either from bus or by draining skid buffer
+            if ( wr_start ) begin
                 wr_pending      <= 1'b1;
                 wr_pending_addr <= wr_dw_addr;
                 wr_pending_be   <= wr_be;
                 wr_pending_data <= wr_data;
-                // Issue BRAM port A read and writemask ROM read
-                // (ROM read driven by ena/addra wires above, BRAM port A read here)
                 bram_addra      <= wr_dw_addr;
                 bram_ena        <= 1'b1;
-                bram_wea        <= 4'h0;        // read, not write
+                bram_wea        <= 4'h0;
+            end
+            else if ( !wr_pending && wr_buf_valid ) begin
+                wr_buf_valid    <= 1'b0;
+                wr_pending      <= 1'b1;
+                wr_pending_addr <= wr_buf_addr;
+                wr_pending_be   <= wr_buf_be;
+                wr_pending_data <= wr_buf_data;
+                bram_addra      <= wr_buf_addr;
+                bram_ena        <= 1'b1;
+                bram_wea        <= 4'h0;
             end
 
             // Cycle 1: Writemask and BRAM data available, compute and write back
