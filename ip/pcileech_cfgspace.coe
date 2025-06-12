@@ -16,7 +16,7 @@ E0001458,   ; DW 0x00B: SVID=1458(Gigabyte), SSID=E000
 00000040,   ; DW 0x00D: CapPtr=0x40
 00000000,   ; DW 0x00E: Reserved
 01010000,   ; DW 0x00F: IntLine=00, IntPin=01(INTA#), MinGnt=00, MaxLat=01
-C8035001,   ; DW 0x010: PM CapID=01, Next=50, PMC=03C8
+C8635001,   ; DW 0x010: PM CapID=01, Next=50, PMC=03C8 (D1+D2+)
 00000000,   ; DW 0x011: PM PMCSR=0000(D0 state)
 00000000,   ; DW 0x012: PM Data/BSE
 00000000,   ; DW 0x013: PM padding
@@ -29,9 +29,9 @@ C8035001,   ; DW 0x010: PM CapID=01, Next=50, PMC=03C8
 00000000,   ; DW 0x01A: padding
 00000000,   ; DW 0x01B: padding
 0002B010,   ; DW 0x01C: PCIe CapID=10, Next=B0, PcieCap=0002(v2,Endpoint)
-00008001,   ; DW 0x01D: PCIe DevCap: MPS=256B, RBEE=1
+00008000,   ; DW 0x01D: PCIe DevCap: MPS=128B, RBEE=1
 00002810,   ; DW 0x01E: PCIe DevCtl=2810, DevSta=0000
-00015C82,   ; DW 0x01F: PCIe LnkCap: Gen2x1, ASPM L0s+L1, ClkPM
+00015C11,   ; DW 0x01F: PCIe LnkCap: Gen1x1, ASPM L0s+L1, ClkPM
 10110040,   ; DW 0x020: PCIe LnkCtl=0040, LnkSta=1011(Gen1x1,SlotClk)
 00000000,   ; DW 0x021: PCIe Slot (N/A)
 00000000,   ; DW 0x022: PCIe Slot (N/A)
@@ -80,7 +80,7 @@ C8035001,   ; DW 0x010: PM CapID=01, Next=50, PMC=03C8
 00000000,   ; DW 0x04D: AER Error Source ID (N/A)
 00000000,   ; DW 0x04E: AER TLP Prefix Log
 00000000,   ; DW 0x04F: AER padding
-16020002,   ; DW 0x050: VC ExtCapID=0002, Ver=1, Next=0x160
+16010002,   ; DW 0x050: VC ExtCapID=0002, Ver=1, Next=0x160
 00000000,   ; DW 0x051: VC Port Cap 1
 00000000,   ; DW 0x052: VC Port Cap 2
 00000000,   ; DW 0x053: VC Port Ctrl/Status
@@ -88,13 +88,13 @@ C8035001,   ; DW 0x010: PM CapID=01, Next=50, PMC=03C8
 00000000,   ; DW 0x055: VC0 Resource Ctrl
 00000000,   ; DW 0x056: VC0 Resource Status
 00000000,   ; DW 0x057: VC padding
-17030003,   ; DW 0x058: DSN ExtCapID=0003, Ver=1, Next=0x170
+17010003,   ; DW 0x058: DSN ExtCapID=0003, Ver=1, Next=0x170
 E0000001,   ; DW 0x059: DSN Low 32 (placeholder)
 00004CFE,   ; DW 0x05A: DSN High 32 (placeholder)
 00000000,   ; DW 0x05B: DSN padding
-17800018,   ; DW 0x05C: LTR ExtCapID=0018, Ver=1, Next=0x178
+17810018,   ; DW 0x05C: LTR ExtCapID=0018, Ver=1, Next=0x178
 00000000,   ; DW 0x05D: LTR Max Snoop/No-Snoop Latency
-0000001E,   ; DW 0x05E: L1SS ExtCapID=001E, Ver=1, Next=0x000(END)
+0001001E,   ; DW 0x05E: L1SS ExtCapID=001E, Ver=1, Next=0x000(END)
 0000001F,   ; DW 0x05F: L1SS Capabilities
 00000000,   ; DW 0x060: L1SS Control 1
 00000000,   ; DW 0x061: L1SS Control 2
