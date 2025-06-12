@@ -645,7 +645,7 @@ set_property -dict [list \
     CONFIG.MSIx_PBA_BIR             {BAR_4} \
     CONFIG.MSIx_PBA_Offset          {00000800} \
     CONFIG.DSN_Enabled              {true} \
-    CONFIG.DSN_Value                {00000001_01000A35} \
+    CONFIG.DSN_Value                {010068FE_FF4CE000} \
     CONFIG.AER_Enabled              {true} \
     CONFIG.Maximum_Link_Width       {X1} \
     CONFIG.Link_Speed               {5.0_GT/s} \

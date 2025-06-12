@@ -89,8 +89,8 @@ C8635001,   ; DW 0x010: PM CapID=01, Next=50, PMC=03C8 (D1+D2+)
 00000000,   ; DW 0x056: VC0 Resource Status
 00000000,   ; DW 0x057: VC padding
 17010003,   ; DW 0x058: DSN ExtCapID=0003, Ver=1, Next=0x170
-E0000001,   ; DW 0x059: DSN Low 32 (placeholder)
-00004CFE,   ; DW 0x05A: DSN High 32 (placeholder)
+FF4CE000,   ; DW 0x059: DSN Low 32 (EUI-64 from MAC 00:E0:4C:68:00:01)
+010068FE,   ; DW 0x05A: DSN High 32 (EUI-64 from MAC 00:E0:4C:68:00:01)
 00000000,   ; DW 0x05B: DSN padding
 17810018,   ; DW 0x05C: LTR ExtCapID=0018, Ver=1, Next=0x178
 00000000,   ; DW 0x05D: LTR Max Snoop/No-Snoop Latency
