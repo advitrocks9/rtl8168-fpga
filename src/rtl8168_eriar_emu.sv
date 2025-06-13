@@ -2,7 +2,7 @@
 // RTL8168H NIC Emulation — ERI Access State Machine (ERIAR/ERIDR)
 //
 // BAR offsets: ERIDR (0x70, 32-bit data), ERIAR (0x74, control/address).
-// Same flag-polling protocol as PHYAR. Internal 64x32-bit register file.
+// Same flag-polling protocol as PHYAR. Internal 256x32-bit register file.
 // ERIAR bits: [31]=Flag, [17:16]=Type, [15:12]=ByteEnable, [11:0]=Addr.
 // Delay: 200 + lfsr_val[5:0] cycles (200-263 range).
 //
@@ -29,26 +29,25 @@ module rtl8168_eriar_emu(
     output bit [31:0]   eridr_rd_data    // ERIDR read
 );
 
-    // Internal ERI register file: 64 x 32-bit
+    // Internal ERI register file: 256 x 32-bit
     // Address mapping: ERIAR[11:0] is byte address, 4-byte aligned
-    // -> register index = ERIAR[7:2] (6 bits -> 64 entries)
-    bit [31:0] eri_regs [0:63];
+    // -> register index = ERIAR[9:2] (8 bits -> 256 entries)
+    bit [31:0] eri_regs [0:255];
 
     // State machine
     bit [1:0]   state = `ERIAR_IDLE;
     bit [7:0]   delay_cnt = 0;      // max ~263 -> 8 bits
     bit         is_write = 0;
-    bit [5:0]   pending_idx = 0;
+    bit [7:0]   pending_idx = 0;
     bit [3:0]   pending_be = 0;
 
     // Jitter: 200 + lfsr_val[5:0] -> range 200-263
-    // FIXME: eeprom emulation is read-only, may need write support later
     wire [7:0] delay_target = 8'd200 + {2'd0, lfsr_val[5:0]};
 
     integer i;
     always @ ( posedge clk ) begin
         if ( rst ) begin
-            for ( i = 0; i < 64; i = i + 1 ) begin
+            for ( i = 0; i < 256; i = i + 1 ) begin
                 eri_regs[i] <= 32'h00000000;
             end
             eriar_rd_data <= 32'h00000000;
@@ -56,7 +55,7 @@ module rtl8168_eriar_emu(
             state <= `ERIAR_IDLE;
             delay_cnt <= 8'd0;
             is_write <= 1'b0;
-            pending_idx <= 6'd0;
+            pending_idx <= 8'd0;
             pending_be <= 4'h0;
         end
         else begin
@@ -71,20 +70,20 @@ module rtl8168_eriar_emu(
                         if ( eriar_wr_data[31] ) begin
                             // ERI Write: Flag=1
                             is_write <= 1'b1;
-                            pending_idx <= eriar_wr_data[7:2];
+                            pending_idx <= eriar_wr_data[9:2];
                             pending_be <= eriar_wr_data[15:12];
                             // Apply byte-enable masked write from ERIDR
                             if ( eriar_wr_data[15] ) begin
-                                eri_regs[eriar_wr_data[7:2]][31:24] <= eridr_rd_data[31:24];
+                                eri_regs[eriar_wr_data[9:2]][31:24] <= eridr_rd_data[31:24];
                             end
                             if ( eriar_wr_data[14] ) begin
-                                eri_regs[eriar_wr_data[7:2]][23:16] <= eridr_rd_data[23:16];
+                                eri_regs[eriar_wr_data[9:2]][23:16] <= eridr_rd_data[23:16];
                             end
                             if ( eriar_wr_data[13] ) begin
-                                eri_regs[eriar_wr_data[7:2]][15:8] <= eridr_rd_data[15:8];
+                                eri_regs[eriar_wr_data[9:2]][15:8] <= eridr_rd_data[15:8];
                             end
                             if ( eriar_wr_data[12] ) begin
-                                eri_regs[eriar_wr_data[7:2]][7:0] <= eridr_rd_data[7:0];
+                                eri_regs[eriar_wr_data[9:2]][7:0] <= eridr_rd_data[7:0];
                             end
                             eriar_rd_data <= eriar_wr_data;
                             delay_cnt <= delay_target;
@@ -93,7 +92,7 @@ module rtl8168_eriar_emu(
                         else begin
                             // ERI Read: Flag=0
                             is_write <= 1'b0;
-                            pending_idx <= eriar_wr_data[7:2];
+                            pending_idx <= eriar_wr_data[9:2];
                             pending_be <= eriar_wr_data[15:12];
                             eriar_rd_data <= {1'b0, eriar_wr_data[30:0]};
                             delay_cnt <= delay_target;
