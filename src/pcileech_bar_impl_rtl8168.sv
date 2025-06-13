@@ -222,7 +222,7 @@ module pcileech_bar_impl_rtl8168(
             10'h00E: rd_mux_data = {24'h000000, 8'hFF};                     // TxPoll always 0xFF
             10'h00F: rd_mux_data = {intr_status_rd, intr_mask_rd};
             10'h012: rd_mux_data = timer_rd_data;
-            10'h014: rd_mux_data = {8'h80, 8'h00, 8'h00, cfg9346_rd_data}; // Config2=0x80, Config1=0, Config0=0, Cfg9346
+            10'h014: rd_mux_data = {bram_doutb[31:24], bram_doutb[23:16], bram_doutb[15:8], cfg9346_rd_data}; // Config2/1/0 from BRAM, Cfg9346 from SM
             10'h018: rd_mux_data = phyar_rd_data;
             10'h01C: rd_mux_data = eridr_rd_data;
             10'h01D: rd_mux_data = eriar_rd_data;
