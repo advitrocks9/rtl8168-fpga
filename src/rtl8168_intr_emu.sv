@@ -8,7 +8,7 @@ module rtl8168_intr_emu(
     input  [15:0]       mask_wr_data,
     input               status_wr,       // IntrStatus write strobe (W1C)
     input  [15:0]       status_wr_data,  // bits to clear
-    input  [15:0]       usb_intr_set,    // USB-injected interrupt events
+    input  [15:0]       ext_intr_set,    // hardware interrupt events (LinkChg, etc.)
     output bit [15:0]   mask_rd_data,    // IntrMask read
     output bit [15:0]   status_rd_data,  // IntrStatus read
     output bit          msi_request      // active when any unmasked interrupt pending
@@ -26,18 +26,15 @@ module rtl8168_intr_emu(
                 mask_rd_data <= mask_wr_data;
             end
 
-            // IntrStatus: W1C (write-1-to-clear) + USB inject (set)
+            // IntrStatus: W1C (write-1-to-clear) + hardware event inject
             if ( status_wr ) begin
-                // Clear bits that host writes as 1, then OR in any new USB events
-                status_rd_data <= (status_rd_data & ~status_wr_data) | usb_intr_set;
+                status_rd_data <= (status_rd_data & ~status_wr_data) | ext_intr_set;
             end
             else begin
-                // Just OR in USB-injected events
-                status_rd_data <= status_rd_data | usb_intr_set;
+                status_rd_data <= status_rd_data | ext_intr_set;
             end
 
             // MSI request: any unmasked interrupt pending
-            // Use next-cycle values for accurate computation
             msi_request <= |(status_rd_data & mask_rd_data);
         end
     end

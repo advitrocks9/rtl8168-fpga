@@ -24,7 +24,9 @@ module rtl8168_phyar_emu(
     input  [4:0]        ocp_phy_addr,
     input  [15:0]       ocp_phy_wr_data,
     input               ocp_phy_wr_en,
-    output bit [15:0]   ocp_phy_rd_data
+    output bit [15:0]   ocp_phy_rd_data,
+    // Link status change interrupt pulse
+    output bit          phy_link_chg    // 1-cycle pulse on any PHY register write
 );
 
     // PHY register file: 32 x 16-bit
@@ -102,11 +104,15 @@ module rtl8168_phyar_emu(
             is_write <= 1'b0;
             pending_reg <= 5'd0;
             pending_data <= 16'h0000;
+            phy_link_chg <= 1'b0;
         end
         else begin
+            phy_link_chg <= 1'b0;    // default: clear pulse
+
             // Handle OCP writes to shared PHY register file
             if ( ocp_phy_wr_en && !phy_ro[ocp_phy_addr] ) begin
                 phy_regs[ocp_phy_addr] <= ocp_phy_wr_data;
+                phy_link_chg <= 1'b1;
             end
 
             case ( state )
@@ -120,6 +126,7 @@ module rtl8168_phyar_emu(
                             // Update PHY file immediately (if not RO)
                             if ( !phy_ro[wr_data[20:16]] ) begin
                                 phy_regs[wr_data[20:16]] <= wr_data[15:0];
+                                phy_link_chg <= 1'b1;
                             end
                             // Set bit31 in rd_data (busy/written)
                             rd_data <= wr_data;

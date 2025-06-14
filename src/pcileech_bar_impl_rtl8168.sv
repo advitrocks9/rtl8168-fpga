@@ -61,6 +61,7 @@ module pcileech_bar_impl_rtl8168(
     wire [15:0] ocp_phy_wr_data;
     wire        ocp_phy_wr_en;
     wire [15:0] ocp_phy_rd_data;
+    wire        phy_link_chg;
 
     rtl8168_phyar_emu i_phyar(
         .clk            ( clk               ),
@@ -72,7 +73,8 @@ module pcileech_bar_impl_rtl8168(
         .ocp_phy_addr   ( ocp_phy_addr      ),
         .ocp_phy_wr_data( ocp_phy_wr_data   ),
         .ocp_phy_wr_en  ( ocp_phy_wr_en     ),
-        .ocp_phy_rd_data( ocp_phy_rd_data   )
+        .ocp_phy_rd_data( ocp_phy_rd_data   ),
+        .phy_link_chg   ( phy_link_chg      )
     );
 
     // --- Cfg9346 (BAR offset 0x50, DWORD 0x014 byte 0) ---
@@ -107,6 +109,9 @@ module pcileech_bar_impl_rtl8168(
     wire [15:0] intr_mask_rd;
     wire [15:0] intr_status_rd;
 
+    // LinkChg (bit 1) fires on any PHY register write
+    wire [15:0] ext_intr_events = {14'd0, phy_link_chg, 1'b0};
+
     rtl8168_intr_emu i_intr(
         .clk            ( clk               ),
         .rst            ( rst               ),
@@ -114,7 +119,7 @@ module pcileech_bar_impl_rtl8168(
         .mask_wr_data   ( wr_data[15:0]     ),
         .status_wr      ( intr_status_wr    ),
         .status_wr_data ( wr_data[31:16]    ),
-        .usb_intr_set   ( 16'h0000          ),
+        .ext_intr_set   ( ext_intr_events   ),
         .mask_rd_data   ( intr_mask_rd      ),
         .status_rd_data ( intr_status_rd    ),
         .msi_request    ( msi_request       )
