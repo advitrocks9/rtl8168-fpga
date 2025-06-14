@@ -68,7 +68,7 @@ module rtl8168_phyar_emu(
             phy_regs[0]  <= 16'h1140;  // BMCR
             phy_regs[1]  <= 16'h7949;  // BMSR
             phy_regs[2]  <= 16'h001C;  // PHYID1
-            phy_regs[3]  <= 16'hC912;  // PHYID2
+            phy_regs[3]  <= 16'hC800;  // PHYID2 (RTL8168H internal PHY)
             phy_regs[4]  <= 16'h05E1;  // ANAR
             phy_regs[5]  <= 16'h0000;  // ANLPAR
             phy_regs[6]  <= 16'h0004;  // ANER
