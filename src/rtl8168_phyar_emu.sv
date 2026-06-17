@@ -44,10 +44,6 @@ module rtl8168_phyar_emu(
     bit [4:0]   pending_reg = 0;
     bit [15:0]  pending_data = 0;
 
-    // Jitter calculation: 1200 + (lfsr_val[6:0] % 101)
-    // Since modulo is expensive in hardware, approximate with: 1200 + lfsr_val[6:0]
-    // lfsr_val[6:0] range is 0-127, but we cap at 100 for 1200-1300 range
-    // TODO: test with actual r8169 driver on 6.x kernel
     // Jitter: 1200 + (lfsr_val[6:0] mod 101), approximated by wrapping
     // values >= 101 back to jitter_raw - 101 (gives 0-26 double coverage,
     // much better than the previous clamp that piled up 100-127 at 100).

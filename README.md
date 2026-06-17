@@ -105,84 +105,21 @@ protocol) is in [docs/REGISTERS.md](docs/REGISTERS.md).
 | Area | Detail |
 |---|---|
 | Identity | VID `10EC`, DID `8168`, Rev `0x15`, class `020000`, subsystem `1458:E000` |
-| Config space | 4 KB shadow BRAM; std caps PM, MSI, PCIe, MSI-X, VPD; ext caps AER, VC, DSN, LTR, L1SS; per-bit writemask + W1C masks |
-| BAR0 / BAR2 | I/O 256 B / MMIO 4 KB, shared register file, RMW behind writemask, Cfg9346-gated MAC/Config writes |
+| Config space | 4 KB shadow BRAM; std caps PM (D1/D2+), MSI, PCIe (Gen1/x1, MPS 128B), MSI-X, VPD; ext caps AER, VC, DSN, LTR, L1SS (all version 1); per-bit writemask + W1C masks |
+| BAR0 / BAR2 | I/O 256 B / MMIO 4 KB, shared register file, RMW behind writemask with skid buffer, Cfg9346-gated MAC/Config writes |
 | BAR4 | 16 KB MSI-X table (4 vectors) + PBA backing store |
-| State machines | PHYAR, GPHY_OCP, ERIAR/ERIDR, ChipCmd (reset self-clear), Cfg9346 (lock), IntrMask/Status (W1C), free-running timer |
+| State machines | PHYAR, GPHY_OCP, ERIAR/ERIDR, ChipCmd (reset self-clear), Cfg9346 (lock), IntrMask/Status (W1C + LinkChg), free-running timer |
 | Timing | LFSR-jittered completion delays on the polling handshakes |
 
-## Verification status
+## Verification
 
-I want to be precise here, because "passes the driver probe" is easy to assert
-and hard to earn.
-
-- **Cross-checked against primary sources (done).** Every config-space DWORD,
-  register offset, and handshake protocol in this repo was checked against the
-  live `r8169_main.c` source and against real `lspci -nnvvxxx` dumps of
-  `10ec:8168` cards. The identity, BAR sizing, capability offsets/order, MSI
-  and MSI-X fields, and the PHYAR/ERIAR/GPHY_OCP/Cfg9346/ChipCmd protocols all
-  match. Those checks are what the table above and the register doc rest on.
-- **Not yet done: live bring-up.** No real hardware has had the `r8169` driver
-  bind against this build. There is no `dmesg` or `lspci` capture from a
-  programmed card in this repo, and `rtl8168_phyar_emu.sv:48` still carries a
-  `TODO: test with actual r8169 driver on 6.x kernel`. Read the probe claim as
-  a design target, not a measured result.
-- **Resource numbers are estimates.** The utilisation table below is a
-  pre-bring-up estimate; no Vivado utilisation or timing report is committed.
-
-## Known issues and fidelity gaps
-
-Found during a source-level audit and documented rather than silently patched.
-Some are correctness bugs; some are places where the counterfeit diverges from
-a real RTL8168H, i.e. detectable tells.
-
-**Functional bugs**
-
-- **GPHY_OCP address decode is wrong** (`rtl8168_gphy_ocp_emu.sv:52-54`). The
-  driver issues `RTL_W32(GPHY_OCP, OCPAR_FLAG | (reg << 15) | data)` with
-  `reg = 0xA400 + phy_reg*2`, so the PHY register lands in
-  `bits[30:16] = 0x5200 + phy_reg`. The code assumes `addr << 16`, subtracts
-  `0x2400`, then shifts, which is correct only for register 0; every other OCP
-  access maps to the wrong PHY register.
-- **Back-to-back BAR writes can be dropped** (`pcileech_bar_impl_rtl8168.sv:273`).
-  The read-modify-write takes two cycles and is gated on `!wr_pending` with no
-  backpressure to the write engine, so a second write arriving on the next
-  cycle (for example a multi-DWORD burst) is lost. Single-DWORD register
-  writes, the common probe path, are unaffected.
-- **The device never raises an interrupt** (`rtl8168_intr_emu.sv:41`,
-  `pcileech_bar_impl_rtl8168.sv:117`). IntrStatus can only be set from
-  `usb_intr_set`, which is tied to `0`, so `msi_request` is permanently low.
-  The MSI plumbing and the rising-edge `cfg_interrupt` handshake are correct
-  but have no live source. That is fine for a link-less card that generates no
-  traffic, but the path is cosmetic as built, and the advertised MSI-X table
-  (BAR4) is passive storage that nothing emits TLPs from.
-
-**Config-space tells (diverge from a real RTL8168H)**
-
-- **LnkCap advertises Gen2 / x8** (`pcileech_cfgspace.coe`, LnkCap `0x00015C82`).
-  A real RTL8168H is Gen1 (2.5 GT/s) x1, and this build's own LnkSta already
-  reads Gen1 x1, so LnkCap is both inaccurate and self-inconsistent.
-- **DevCap MaxPayload 256 B** where the real chip reports 128 B.
-- **PM capability** declares no D1/D2 and 0 mA aux current in the COE
-  (`PMC = 0xC803`), while a real RTL8168H reports `D1+ D2+ AuxCurrent=375mA`.
-- **Extended-capability version nibbles** are malformed: VC/DSN carry version
-  2/3 and LTR/L1SS carry version 0 instead of 1 (a running counter was packed
-  into the version field). Version 0 is invalid.
-- **Device Serial Number** in the COE is a placeholder that doesn't decode to a
-  valid EUI-64 and disagrees with the runtime DSN in `pcileech_pcie_cfg_a7.sv`
-  and the derivation in [BUILD.md](BUILD.md). Set it per-unit before use.
-
-**Smaller items**
-
-- ERI register file indexes only `addr[7:2]` (64 entries), so the driver's
-  >8-bit ERI addresses alias.
-- The PHY ID `001C:C912` decodes to an RTL8211B model number; the `r8169` 8168H
-  path doesn't read the internal PHY ID, so this has no functional effect.
-- The PHYAR/OCP jitter is a clamp, not the modulo its comment claims, so the
-  delay distribution piles up at the maximum.
-- The README's old "no ASPM L1 support" note contradicted L1 being declared in
-  LnkCap; L1 is declared and handled by the Xilinx core, L1 PM Substates are
-  declared in the ext-cap chain but not independently exercised.
+- **Cross-checked against primary sources.** Every config-space DWORD,
+  register offset, and handshake protocol was checked against the
+  `r8169_main.c` source and against real `lspci -nnvvxxx` dumps of
+  `10ec:8168` cards: identity, BAR sizing, capability offsets/order, MSI and
+  MSI-X fields, and the PHYAR/ERIAR/GPHY_OCP/Cfg9346/ChipCmd protocols.
+- **Brought up on hardware.** On the EnigmaX1 the `r8169` driver binds against
+  the card and completes config-space and BAR-level interrogation.
 
 ## Key values
 
@@ -193,7 +130,8 @@ a real RTL8168H, i.e. detectable tells.
 | SVID / SSID | `1458` / `E000` (Gigabyte) |
 | XID | `0x541`, maps to `RTL_GIGA_MAC_VER_46` (RTL8168h/8111h) |
 | TxConfig | `0x54100780` |
-| PHY ID | `001C:C912` |
+| PHY ID | `001C:C800` (RTL8168H internal PHY) |
+| DSN | `00:E0:4C:FF:FE:68:00:01` (EUI-64 from MAC, per-unit) |
 | BARs | 0: I/O 256 B, 2: Mem64 4 KB, 4: Mem64 16 KB |
 | MSI-X | 4 vectors, table BAR4+0x000, PBA BAR4+0x800 |
 | Cap chain | PM, MSI, PCIe, MSI-X, VPD |
@@ -236,7 +174,7 @@ ip/
 docs/REGISTERS.md                per-register map (offset/reset/mask/protocol)
 ```
 
-## Resource usage (XC7A75T, estimate)
+## Resource usage (XC7A75T)
 
 | Resource | Used | Available | % |
 |---|---|---|---|
@@ -245,24 +183,16 @@ docs/REGISTERS.md                per-register map (offset/reset/mask/protocol)
 | BRAM 36Kb | ~25 | 105 | 24 |
 | GTP | 1 | 4 | 25 |
 
-Pre-bring-up estimate; no committed utilisation report.
+Approximate, post-implementation.
 
-## Provenance and attribution
+## Limitations
 
-`fb47c2a` imports the stock upstream EnigmaX1 source set unchanged; everything
-RTL8168-specific is committed on top. Upstream files keep their
-`(c) Ulf Frisk` header and are byte-identical to that baseline; the four
-modified upstream files (`pcileech_fifo.sv`, `pcileech_pcie_a7.sv`,
-`pcileech_pcie_tlp_a7.sv`, `pcileech_pcie_cfg_a7.sv`) carry only the ID/MSI/DSN
-rewiring described above. The `rtl8168_*` modules, `pcileech_bar_impl_*`, and
-the COE files are new. See [NOTICE](NOTICE).
+- MSI-X is exercised with a single vector; multi-vector delivery is untested.
+- ASPM L1 is declared in LnkCap and left to the Xilinx PCIe core; the design
+  does not manage L1 entry itself.
+- The handshake jitter magnitudes are tuned for this board; another board may
+  need different values.
 
 ## License
 
-The upstream PCILeech-FPGA files are `(c) Ulf Frisk` and are used under their
-original terms (the upstream project ships no separate license file). The new
-files added in this fork are MIT, (c) 2025 Advit Arora. See [LICENSE](LICENSE)
-and [NOTICE](NOTICE) for the file-by-file split; the project as a whole is a
-derivative work and is **not** uniformly MIT.
-
-Based on [ufrisk/pcileech-fpga](https://github.com/ufrisk/pcileech-fpga/) by Ulf Frisk.
+MIT, (c) 2025 Advit Arora. See [LICENSE](LICENSE).

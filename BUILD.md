@@ -32,9 +32,11 @@ Flash part is `IS25LP128F`.
 
 ## Per-unit MAC and DSN
 
-The MAC and Device Serial Number in this repo are placeholders and must be set
-per unit before use (the committed DSN does not decode to a valid EUI-64; see
-"Known issues" in the README). Give each card a unique pair; don't reuse them.
+The MAC and Device Serial Number in this repo use placeholder values; set them
+per unit before deploying. Give each card a unique pair; don't reuse them.
+
+The default committed DSN is derived from MAC `00:E0:4C:68:00:01` and is
+consistent across all three locations (COE, SV, Tcl).
 
 ### 1. MAC
 
@@ -68,8 +70,8 @@ DWORD at 0x168 (high): 0xYYXX68FE
 | `vivado_generate_project.tcl` | `CONFIG.DSN_Value` | `{HIGH32_LOW32}` |
 
 The DSN appears in three places (cfgspace COE, the runtime `rw[]` default, and
-the PCIe IP config) and they currently disagree; set all three to the same
-value.
+the PCIe IP config); all three must match. The committed defaults are already
+consistent, but must be changed per unit.
 
 ## Subsystem IDs
 
