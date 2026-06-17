@@ -1,19 +1,9 @@
-This repository is a derivative work of PCILeech-FPGA and is NOT uniformly
-licensed. Read NOTICE for the file-by-file split.
-
-The upstream PCILeech-FPGA files (every file carrying a "(c) Ulf Frisk" header,
-whether unchanged or modified in this fork) are copyright Ulf Frisk and are used
-under their original terms. They are not relicensed by this file.
-
-The MIT license below applies ONLY to the files listed as new in NOTICE: the
-rtl8168_* modules, pcileech_bar_impl_rtl8168.sv, pcileech_bar_impl_msix.sv, the
-RTL8168 COE files, and the documentation.
-
--------------------------------------------------------------------------------
-
 MIT License
 
 Copyright (c) 2025 Advit Arora
+
+Forked from pcileech-fpga by Ulf Frisk (https://github.com/ufrisk/pcileech-fpga);
+upstream files remain (c) Ulf Frisk.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
